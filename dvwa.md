@@ -54,5 +54,5 @@ Medium操作和Low一致，从源码得知仅仅是在登录失败后添加了2�
 
 通过代码分析，High难度将休眠时间设置为了0到3秒随机数，并增加了token验证
 
-> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/B(EP]RUQD33ITY%02B%RQ9L.png?raw=true">
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/1.png?raw=true">
 

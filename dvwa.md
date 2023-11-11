@@ -10,7 +10,7 @@
 
 - `[]`可选项，可以选择填写或忽略
 
-# Brute Force
+# 暴力破解 Brute Force
 
 ## Low
 
@@ -79,3 +79,89 @@ Medium操作和Low一致，从源码得知仅仅是在登录失败后添加了2�
 等待攻击完成，会有两个长度不同的项，点击下方的 `响应 > 页面渲染` 找到正确项即可
 
 > <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/NC_]C9$J0CI~2(}J2{V6YPW.png?raw=true">
+
+# 命令注入 Command Injection
+
+## Low
+
+提示输入一个IP地址，输入127.0.0.1进行尝试，发现返回格式与cmd中ping一致
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/8(`2QC47JFACRBY7_F%]]FT.png?raw=true">
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/S4}T{[2U7CWOKW~58@K2P%P.png?raw=true ">
+
+查看源码，发现是对输入的ip执行ping命令
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/}TWYPW]BJJHFJNVO{I(0@JN.png?raw=true">
+
+使用命令连接符进行尝试，注入成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/SW@`F@P5[%XD%LHU024@80I.png?raw=true">
+
+命令连接符：
+
+- `a & b` ：a与b都会执行，无制约关系
+
+- `a && b` ：a为真，才会执行b
+
+- `a | b` ：无论a是否为真，都会执行b
+
+- `a || b` ：若a为真不执行b，若a为假才执行b
+
+- `a ; b ; c` ：执行多个命令，命令之间无制约
+
+## Medium
+
+查看源码，发现将 `&&` 和 `;` 加入了黑名单
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/AF$9@YBB}%}M@~$4T`V]TF2.png?raw=true">
+
+但是可以使用黑名单之外的连接符
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/R2I%R05MGE(6NB226}IWBE2.png?raw=true">
+
+## High
+
+查看源码，发现黑名单中包含了所有可用的命令连接符，但是仔细查看，发现 `'| '`后多了个空格，此时 `|` 后若不带空格直接跟命令不受影响
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/)5AUY4W_5DX@80UN6_[843E.png?raw=true">
+
+填入 `127.0.0.1 |dir` 注入成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/5F3SX3EOH3USOQ1E%WXZ7Q2.png?raw=true">
+
+# 跨站请求伪造 CSRF
+
+## Low
+
+查看网页，提示更改密码，输入pass进行尝试，密码更改成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/K8))9D`XGER97YL2A@7`9L4.png?raw=true">
+
+进行登录验证，密码已经被更改为pass
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/)VX(HL09VFZ4OWK{53_QP`5.png?raw=true">
+
+回到刚才的页面，仔细观察，发现url栏中显示了更改的密码
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/_TCQEI2V1XR0YUV0B)4(D13.png?raw=true">
+
+观察url栏：
+http://127.0.0.1/dvwa/vulnerabilities/csrf/?password_new=pass&password_conf=pass&Change=Change#
+password_new是新密码，password_conf是确认密码，说明输入的信息可能会在url栏进行传输执行。进行抓包，发现请求信息与url栏信息一致
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/H1$HALEPGPF_6LG9S%XU~DX.png?raw=true">
+
+尝试对url栏内容进行修改，新建标签页进行提交，这里我将密码改为root
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/87OHW4C853[5C6$~(NEE~]6.png?raw=true">
+
+进行登录验证，密码更改成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/{1TLUD8{3)1_R_O9}TY9C6O.png?raw=true">
+
+分析源码，只对传入的两个密码进行比较，没有任何过滤，可以轻易执行CSRF攻击
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/~XRAAE9~IHD_GK19L1(X$DJ.png?raw=true">
+
+## Medium

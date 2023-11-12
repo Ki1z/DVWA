@@ -165,3 +165,34 @@ password_new是新密码，password_conf是确认密码，说明输入的信息�
 > <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/~XRAAE9~IHD_GK19L1(X$DJ.png?raw=true">
 
 ## Medium
+
+分析源码，Medium难度在接收输入之前验证了请求的来源，必须要referer中包含server_name的请求才会被通过
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/R6K5XV10{`SSIS81C19XKJ1.png?raw=true">
+
+因此我们需要想办法在referer中添加相应的server_name，referer中记录的是网站的请求来源，进行抓包查看当前的referer
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/RJI$X)7EXD@WZNLI1FLK$YL.png?raw=true">
+
+从上图中可以看出，referer内容为 `http://127.0.0.1/dvwa/vulnerabilities/csrf/` ，并不包含我们需要的server_name。如果我们通过a网站的超链接访问b网站时，referer中记录的将会是a网站的url，下面进行一个验证，我们在本地创建一个html，内包含一个a标签，指向我的b站个人主页，另外比较通过直接访问b站个人主页时的referer
+
+- 直接访问
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/77A)}M_H@X%B5K{46_OA]LW.png?raw=true">
+
+- 构建超链接
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/5EQDP~TJT{Q4UN@LHM1I}4T.png?raw=true">
+
+通过这个原理，我们可以尝试在本地创建一个html文件，在这个文件中插入一个a标签，指向我们想要更改密码的url，再把文件名改为相应的server_name。我的server_name为localhost，所以我将文件名改为localhost.html
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/B6A)IY2{L0EGUM4_ECR)EE9.png?raw=true">
+
+打开html文件，点击超链接，进行抓包查看referer
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/P$%8(5}PW]K1{{2_{HA93WM.png?raw=true">
+
+可以看到，referer中已经被添加了server_name，对抓包放行也发现密码更改成功，进行登陆验证，CSRF攻击成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/[LZ7KKR%8)W~}J{[~(DB{@F.png?raw=true">
+

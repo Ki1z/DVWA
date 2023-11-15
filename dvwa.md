@@ -1,6 +1,6 @@
 # DVWA 学习笔记
 
-`更新时间：2023-11-10`
+`更新时间：2023-11-15`
 
 注释解释：
 
@@ -195,4 +195,86 @@ password_new是新密码，password_conf是确认密码，说明输入的信息�
 可以看到，referer中已经被添加了server_name，对抓包放行也发现密码更改成功，进行登陆验证，CSRF攻击成功
 
 > <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/[LZ7KKR%8)W~}J{[~(DB{@F.png?raw=true">
+
+# 文件包含漏洞 File Inclusion
+
+## Low
+
+有三个文件可以选择，依次点击，发现url栏中文件名会传参给page
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/F)VV1WY9)DQ)ZKWV0ON~CQE.png?raw=true">
+
+在page后输入file4.php，成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/W62$W`CB}Q`@Q2SJ[T(09_G.png?raw=true">
+
+再输入<span>http://</span>localhost/test.php，同样成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/$%D3T5[_@%JFBMS)LUWDUOM.png?raw=true">
+
+## Medium
+
+先看源码，对http、https、../、..//设置了过滤，将其设置为空。
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/FF6(PJ%)F%DJ}YM9]~U`V`Y.png?raw=true">
+
+但是仅过滤全等字符，可以用h<b>http://</b>ttp:// 来代替。其中的<b>http://</b>被设置为空后，依然存在一个http://
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/Z[P]6AIR`CT8XHM@VD8$$5J.png?raw=true">
+
+## High
+
+同样先看源码，High强制文件开头为file
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/CX8O35U8A_ANG%JAI1BHPUR.png?raw=true">
+
+但是同样可以使用file协议读取文件
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/NQFKA4R@YH@Z1NX@7O_Q$UT.png?raw=true">
+
+*注：file协议，即本地文件传输协议，语法是file://文件位置*
+
+# 文件上传漏洞 File Upload
+
+## Low
+
+先创建一个php木马文件，内含一条phpinfo指令
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/OOH8PX8Z5D`30ZAIY7LXJSM.png?raw=true">
+
+上传文件，提示上传成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/A0CU2RP2~ASV4D0[0XEQ0PP.png?raw=true">
+
+尝试打开文件，攻击成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/Q]]RZ4K~DC2VFLB)BV7L)KJ.png?raw=true">
+
+## Medium
+
+上传文件，提示只能上传后缀为JPGE和PNG的文件
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/3M77%IND768NX1[{NJ0Z@XV.png?raw=true">
+
+将Trojan.php后缀名改为png，上传并抓包，将filename改为medium.php并放行，提示上传成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/RZEUVFA$S@4{{U8BB`VV_7B.png?raw=true">
+
+## High
+
+尝试使用Medium方式上传Trojan.png，上传失败
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/)(G9%Q[@OTNH0XET~2WKR61.png?raw=true">
+
+查看源码，High对上传文件的后缀名进行了判断
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/1RER[{X[~P`@5O)@AGB%4{L.png?raw=true">
+
+可以利用文件包含漏洞，制作一个图片木马
+
+**基本语法：**
+
+```shell
+copy filename/B + filename newfilename
+```
 

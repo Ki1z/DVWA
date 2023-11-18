@@ -344,3 +344,23 @@ password_new是新密码，password_conf是确认密码，说明输入的信息�
 
 ## Medium
 
+打开页面，发现是通过选项查询结果
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/Z55MXL{]F{K~B9G(H6UTD7E.png?raw=true">
+
+推测可能是通过POST传参，进行抓包，推测正确
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/C5RNF$)H$8TW[NBUSII_O`J.png?raw=true">
+
+右键，点击 `发送到Repeater` 进行重复发包
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/31_ZGX9N1NY7D2LF91$IFT7.png?raw=true">
+
+重复Low的操作，先判断是否存在注入点
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/]X}5GGGOS[ICM0X0[{]V9_7.png?raw=true">
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/}P~7@)0GO2]49T6Q]K~2IIR.png?raw=true">
+
+!!!
+

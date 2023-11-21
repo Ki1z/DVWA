@@ -356,11 +356,62 @@ password_new是新密码，password_conf是确认密码，说明输入的信息�
 
 > <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/31_ZGX9N1NY7D2LF91$IFT7.png?raw=true">
 
-重复Low的操作，先判断是否存在注入点
+先判断是否存在注入点
 
 > <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/]X}5GGGOS[ICM0X0[{]V9_7.png?raw=true">
 
 > <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/}P~7@)0GO2]49T6Q]K~2IIR.png?raw=true">
 
-!!!
+确认为数据型查询，不存在单引号闭合，直接判断字段数量
 
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/LK1EKEOV8%Y3Q(2G5U%WNHG.png?raw=true">
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/]R(V([A)F305GKPGQ_DX`)M.png?raw=true">
+
+确认字段数为2，使用联合查询判断回显点
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/V(2SWRXXTTVS7LIDJ3)@A5K.png?raw=true">
+
+查询数据库名
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/911OEG_0H48QV@W3S`O_RYV.png?raw=true">
+
+查询表名
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/EC@S02MWZSAR2M~_SE]9G%P.png?raw=true">
+
+查询users下所有字段名
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/4F)[U%[(D3J4Q)GEIV9AH(2.png?raw=true">
+
+报错，怀疑是引号出现的问题，MySQL默认支持HEX编解码，使用HEX编码尝试
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/`L2JP76K_2HV9J6OHF(89DR.png?raw=true">
+
+*注：使用HEX字符编码时，应在编码前添加 `0x` 标识符*
+
+查询管理员账号密码，注入成功
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/1KS]`VM{(SKU6I_X2N`%T)M.png?raw=true">
+
+# High
+
+出现一个链接，打开时查询页面，考虑是传参
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/4LR8FKGX2~BN3AFQLM8EA~R.png?raw=true">
+
+输入1并提交，确认进行传参
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/@ZY59F@55O8YS(BSFSRTO79.png?raw=true">
+
+判断是否存在注入点，重复Low操作
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/135HKIUG12)Z(OBH(Y%5}0L.png?raw=true">
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/3%I%E~PIV@)}]BF$[`I(O7W.png?raw=true">
+
+> <img src="https://github.com/Ki1z/DVWA/blob/main/IMG/4Q3N)42[BG]WEZAHOTIQEGG.png?raw=true">
+
+...
+
+*注：其他步骤省略*
